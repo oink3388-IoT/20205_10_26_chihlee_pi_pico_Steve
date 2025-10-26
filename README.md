@@ -1,0 +1,2 @@
+# 20205_10_26_chihlee_pi_pico_Steve
+致理課程:樹莓派pico_w整合雲端物聯網運用實作班
