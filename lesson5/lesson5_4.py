@@ -5,8 +5,8 @@ import time
 led = Pin("LED", mode=Pin.OUT)
 
 def callback5000(n):    
-    """每 5 秒觸發一次，讓 LED 閃爍 5 次"""
-    for i in range(5):  # 閃爍 5 次
+    """每 5 秒觸發一次，讓 LED 閃爍 2 次"""
+    for i in range(2):  # 閃爍 2 次
         led.on()  # 打開 LED
         time.sleep_ms(100)  # 亮 100 毫秒
         led.off()  # 關閉 LED
