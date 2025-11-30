@@ -1,3 +1,4 @@
+<<<<<<< HEAD:lesson6STEVE/app.py
 """
 Streamlit MQTT 監控應用程式
 """
@@ -289,3 +290,9 @@ else:
         - 檔案名稱格式：`mqtt_data_YYYYMMDD_HHMMSS.xlsx`
         """)
 
+=======
+import streamlit as st
+
+st.title("我的第一個Streamlit 應用程式")
+st.write("歡迎使用Streamlit!")
+>>>>>>> 539fd07ba8979941328249a8a325875e75f76a1c:lesson6/app.py

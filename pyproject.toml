@@ -8,8 +8,12 @@ dependencies = [
     "ipykernel>=7.1.0",
     "numpy>=2.2.6",
     "paho-mqtt>=2.1.0",
+<<<<<<< HEAD
     "streamlit>=1.28.0",
     "pandas>=2.0.0",
     "openpyxl>=3.1.0",
     "plotly>=5.17.0",
+=======
+    "streamlit>=1.40.0",
+>>>>>>> 539fd07ba8979941328249a8a325875e75f76a1c
 ]

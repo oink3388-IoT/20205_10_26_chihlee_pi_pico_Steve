@@ -935,8 +935,11 @@ dependencies = [
     { name = "numpy", version = "2.3.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "openpyxl" },
     { name = "paho-mqtt" },
+<<<<<<< HEAD
     { name = "pandas" },
     { name = "plotly" },
+=======
+>>>>>>> 539fd07ba8979941328249a8a325875e75f76a1c
     { name = "streamlit" },
 ]
 
@@ -946,9 +949,13 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "openpyxl", specifier = ">=3.1.0" },
     { name = "paho-mqtt", specifier = ">=2.1.0" },
+<<<<<<< HEAD
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "plotly", specifier = ">=5.17.0" },
     { name = "streamlit", specifier = ">=1.28.0" },
+=======
+    { name = "streamlit", specifier = ">=1.40.0" },
+>>>>>>> 539fd07ba8979941328249a8a325875e75f76a1c
 ]
 
 [[package]]
