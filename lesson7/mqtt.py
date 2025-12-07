@@ -16,7 +16,7 @@ from machine import Pin, ADC
 WIFI_SSID = "iMask" # 請修改為您的 WiFi 名稱
 WIFI_PASSWORD = "foxconn99" # 請修改為您的 WiFi 密碼
 # MQTT 設定
-MQTT_BROKER = "192.168.0.210" # 樹莓派的 IP 地址（請根據實際情況修改）
+MQTT_BROKER = "172.20.10.2" # 樹莓派的 IP 地址（請根據實際情況修改）
 MQTT_PORT = 1883
 MQTT_TOPIC = "客廳/感測器" # 與 app_flask.py 中的主題一致
 MQTT_CLIENT_ID = "pico_sensor_001"
@@ -122,13 +122,19 @@ def publish_data(client, temperature):
         "light_status": "未知" # 如果沒有光感測器，設為未知
     }
    
-    payload = json.dumps(data)
+    # MicroPython 的 json.dumps 不支持 ensure_ascii 參數
+    # 直接使用 json.dumps，然後編碼為 UTF-8 bytes
+    # umqtt.simple 的 publish 方法需要 bytes 類型的消息
+    payload_str = json.dumps(data)
+    payload_bytes = payload_str.encode('utf-8')
    
     # 嘗試發布，最多重試 2 次
     for attempt in range(2):
         try:
-            # 發布數據到 MQTT（使用最簡單的方式，避免參數問題）
-            client.publish(MQTT_TOPIC, payload.encode())
+            # 發布數據到 MQTT
+            # umqtt.simple 的 publish 方法：publish(topic, msg)
+            # topic 可以是字符串，msg 應該是 bytes
+            client.publish(MQTT_TOPIC, payload_bytes)
            
             # 發布後立即處理消息，確保協議層完成
             try:
@@ -139,7 +145,10 @@ def publish_data(client, temperature):
             # 短暫延遲確保消息已發送
             time.sleep(0.1)
            
+            # 顯示發布的詳細信息（用於調試）
             print(f"📤 已發布: 溫度={temperature}°C")
+            print(f"   主題: {MQTT_TOPIC}")
+            print(f"   數據: {payload_str}")
             return True
            
         except OSError as e:
@@ -159,13 +168,10 @@ def publish_data(client, temperature):
 def create_mqtt_client():
     """創建 MQTT 客戶端"""
     # umqtt.simple 的 MQTTClient 構造函數格式：
-    # MQTTClient(client_id, server, port=1883, keepalive=60, ssl=False, ssl_params={})
-    try:
-        # 嘗試使用 keepalive 參數
-        return MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER, MQTT_PORT, keepalive=MQTT_KEEPALIVE)
-    except TypeError:
-        # 如果不支援 keepalive 參數，使用基本格式
-        return MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER, MQTT_PORT)
+    # MQTTClient(client_id, server, port=1883)
+    # 注意：某些版本的 umqtt.simple 不支持 keepalive 參數
+    # 使用最簡單的格式確保兼容性
+    return MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER, MQTT_PORT)
 def reconnect_mqtt():
     """重新連接 MQTT Broker"""
     max_retries = 3
@@ -205,7 +211,7 @@ def main():
         print(f"✅ MQTT 連接成功！")
         print(f" 客戶端 ID: {MQTT_CLIENT_ID}")
         print(f" 主題: {MQTT_TOPIC}")
-        print(f" Keepalive: {MQTT_KEEPALIVE} 秒")
+        print(f" Broker: {MQTT_BROKER}:{MQTT_PORT}")
     except Exception as e:
         print(f"❌ MQTT 連接失敗: {e}")
         print(f" 請確認：")
@@ -247,6 +253,7 @@ def main():
            
             # 讀取溫度
             temperature = read_temperature()
+            print(f"🔍 讀取到的溫度: {temperature}°C" if temperature is not None else "⚠️ 溫度讀取失敗")
            
             if temperature is not None:
                 # 如果啟用了"發布後斷開"策略，需要先連接
