@@ -9,8 +9,10 @@ import socket
 # -------------------------------
 # 你可以設定你的 WiFi 資訊
 # -------------------------------
-WIFI_SSID = "xxxx"
-WIFI_PASSWORD = "xxx"
+#WIFI_SSID = "Pontus"
+#WIFI_PASSWORD = "Foxconn38!@#"
+WIFI_SSID = "iMask"
+WIFI_PASSWORD = "foxconn99"
 
 # -------------------------------
 # WiFi 連線函式
