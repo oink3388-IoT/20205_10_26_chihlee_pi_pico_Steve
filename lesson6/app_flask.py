@@ -4,8 +4,8 @@ Flask 版本的 MQTT 監控應用程式
 """
 
 from flask import Flask, render_template, jsonify
-from flask_socketio import SocketIO
-import paho.mqtt.client as mqtt
+from flask_socketio import SocketIO  # type: ignore
+import paho.mqtt.client as mqtt  # type: ignore
 from datetime import datetime
 import json
 import threading
