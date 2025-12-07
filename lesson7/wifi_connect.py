@@ -1,6 +1,7 @@
 # wifi_connect.py
 # 作者：ChatGPT for 徐國堂老師
 # 適用：Raspberry Pi Pico W（MicroPython）
+# Modified by Steve Wang on 2025-12-07
 
 import network
 import time
