@@ -1,0 +1,116 @@
+MicroPython 按鈕切換 LED 程式詳細說明功能描述本程式實現「按一下按鈕 LED 亮起，再按一下 LED 熄滅」的切換（Toggle）功能。
+每次按下按鈕，只會觸發一次狀態切換，避免因按鈕機械彈跳導致多次誤觸發。適用硬體：Raspberry Pi Pico、ESP32、ESP8266 等支援 MicroPython 的開發板
+內建或外接 LED（本例使用 GPIO 15）
+按鈕一端接 GPIO 14，另一端接 GND（使用內部上拉電阻）
+
+完整程式碼python
+
+from machine import Pin
+from time import sleep
+
+led_pin = 15    # LED 連接的 GPIO 腳位
+btn_pin = 14    # 按鈕連接的 GPIO 腳位
+
+# 設定 LED 為輸出模式
+led = Pin(led_pin, Pin.OUT)
+
+# 設定按鈕為輸入模式，並啟用內部上拉電阻
+button = Pin(btn_pin, Pin.IN, Pin.PULL_UP)
+
+# 記錄 LED 目前狀態：True = 亮，False = 熄滅
+led_state = False
+
+# 記錄上一次按鈕狀態，用來偵測「按下」的邊緣
+last_button_state = 1  # 初始為 1（沒按下，因為有上拉電阻）
+
+print("按鈕切換 LED 程式啟動")
+
+while True:
+    current_button_state = button.value()  # 讀取目前按鈕狀態
+    
+    # 偵測按鈕從「沒按」(1) 變成「按下」(0) 的下降沿
+    if last_button_state == 1 and current_button_state == 0:
+        print("按鈕被按下，切換 LED 狀態")
+        
+        # 切換 LED 狀態
+        led_state = not led_state
+        
+        if led_state:
+            led.on()
+            print("LED 開啟")
+        else:
+            led.off()
+            print("LED 關閉")
+        
+        # 簡單去彈跳延遲
+        sleep(0.02)  # 20ms
+    
+    # 更新上一次的按鈕狀態
+    last_button_state = current_button_state
+    
+    # 主迴圈稍作延遲，降低 CPU 占用率
+    sleep(0.01)
+
+電路接線圖解
+
+開發板
+├── GPIO 15 ───┬── LED ───┬── 330Ω 電阻 ─── GND
+│              │         │
+│              └── 正極   └── 負極
+│
+└── GPIO 14 ─── 按鈕一端
+                │
+                └── 按鈕另一端 ─── GND
+
+按鈕使用內部上拉電阻，因此未按下時 GPIO 14 為高電平（1），按下時接 GND 變低電平（0）
+
+程式原理詳細說明1. 按鈕去彈跳（Debounce）與邊緣偵測機械按鈕在按下與釋放時會產生短暫的電訊號抖動（彈跳），若直接讀取 button.value() 判斷，可能在一次按壓中觸發多次。本程式採用下降沿偵測方式：只有當按鈕從「1（沒按）」變成「0（按下）」時才執行切換
+結合 20ms 延遲，簡單實現去彈跳效果
+
+2. 狀態切換（Toggle）使用布林變數 led_state 記錄目前 LED 狀態：python
+
+led_state = not led_state
+
+這行程式碼會將 True  False 互相切換，實現「按一次亮、再按一次滅」的效果。3. 為什麼不用原始碼的邏輯？原始程式有以下問題：語法錯誤（false、else if、bflag==False）
+沒有去彈跳，會導致按一次觸發多次
+邏輯判斷複雜且容易出錯
+按住不放時會持續觸發
+
+本版程式解決了以上所有問題，邏輯更清晰穩定。執行結果範例（序列埠輸出）
+
+按鈕切換 LED 程式啟動
+按鈕被按下，切換 LED 狀態
+LED 開啟
+按鈕被按下，切換 LED 狀態
+LED 關閉
+按鈕被按下，切換 LED 狀態
+LED 開啟
+...
+
+可自行調整的部分項目
+建議調整方式
+說明
+GPIO 腳位
+修改 led_pin 和 btn_pin
+依實際接線調整
+去彈跳時間
+修改 sleep(0.02) 的數值
+時間太短可能仍彈跳，太長按鍵反應慢
+主迴圈掃描頻率
+修改最後的 sleep(0.01)
+越小反應越快，但 CPU 占用越高
+初始 LED 狀態
+上電時想讓 LED 預設亮，可設 led_state = True 並執行 led.on()
+
+進階建議（選用）若需要更穩定的去彈跳，可改用計時器或第三方 debounce 函式庫
+可加入長按偵測實現不同功能（例如長按關閉）
+多個按鈕 + 多個 LED 可擴展為多路切換控制
+
+此程式穩定、易懂，適合 MicroPython 入門與實作專案使用。祝玩得開心！
+
+加入長按偵測功能
+
+多按鈕多LED控制
+
+更簡潔的Markdown格式
+
